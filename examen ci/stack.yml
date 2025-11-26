@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+
+  traefik:
+    image: traefik:2.10
+    command:
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+
+      # -------- Certificados ----------
+      - "--certificatesresolvers.http.acme.httpchallenge=true"
+      - "--certificatesresolvers.http.acme.httpchallenge.entrypoint=http"
+      - "--certificatesresolvers.http.acme.email=tu_correo@gmail.com"
+      - "--certificatesresolvers.http.acme.storage=/acme.json"
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "acme:/acme.json"
+
+    deploy:
+      labels:
+        - "traefik.enable=true"
+
+    networks:
+      - traefik-public
+
+  caiza:
+    image: ghcr.io/melanie1606/caiza:1.0.5
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+
+        # ---------- RUTEO HTTP y HTTPS ----------
+        - "traefik.http.routers.caiza.rule=Host(`caiza.byronrm.com`)"
+        - "traefik.http.routers.caiza.entrypoints=http"
+
+        - "traefik.http.routers.caiza-secure.rule=Host(`caiza.byronrm.com`)"
+        - "traefik.http.routers.caiza-secure.entrypoints=https"
+        - "traefik.http.routers.caiza-secure.tls=true"
+        - "traefik.http.routers.caiza-secure.tls.certresolver=http"
+
+        # ---------- PUERTO INTERNO ----------
+        - "traefik.http.services.caiza.loadbalancer.server.port=1001"
+
+        # ---------- RED ----------
+        - "traefik.docker.network=traefik-public"
+
+    networks:
+      - traefik-public
+
+volumes:
+  acme:
+
+networks:
+  traefik-public:
+    external: true
