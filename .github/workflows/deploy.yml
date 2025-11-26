@@ -31,7 +31,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         push: true
-        tags: ghcr.io/Melanie1606/caiza:1.0.5
+        tags: ghcr.io/melanie1606/caiza:1.0.5
 
     - name: 🧪 Test SSH connection
       uses: appleboy/ssh-action@v1
