@@ -14,7 +14,7 @@ def simple_ai(prompt: str) -> str:
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({"message": "App CI/CD - OK (Caiza)"}), 200
+    return jsonify({"message": "App CI/CD - OK (Atancuri)"}), 200
 
 @app.route("/ai", methods=["POST"])
 def ai():
